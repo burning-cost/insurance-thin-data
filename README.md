@@ -63,6 +63,23 @@ pip install insurance-thin-data[report]    # HTML committee reports
 pip install insurance-thin-data[all]       # everything
 ```
 
+## Performance
+
+Benchmarked against a standalone Poisson GLM on 500 target policies. Source portfolio: 10,000 policies with a related but not identical DGP (lower baseline frequency, stronger building-age effect, one target-specific feature). Bootstrap uses 200 resamplings of the target training data. Full notebook: `notebooks/benchmark.py`.
+
+| Metric | Standalone GLM | GLMTransfer | Notes |
+|--------|---------------|-------------|-------|
+| Bootstrap 90% CI width (mean, shared features) | wider | narrower | Primary differentiator |
+| Poisson deviance (test set, 150 policies) | compared | compared | Differences small at n=150 |
+| Gini coefficient (test set) | compared | compared | Noisy at this sample size |
+| Overall A/E ratio | compared | compared | Transfer closer to 1.0 |
+
+The headline result is parameter stability, not point accuracy. On 500 policies the standalone GLM has wide coefficient confidence intervals — the transfer model anchors estimates near the source and only moves when target data strongly justifies it. Point-prediction metrics on 150 test policies are inherently noisy; treat them as indicative. The benchmark also runs `CovariateShiftTest` (MMD with permutation test) to verify that the debiasing step is earning its keep, and `NegativeTransferDiagnostic` to flag whether the source is helping or hurting.
+
+**When to use:** You have 100–2,000 policies in the target segment and a related source book with 5,000+ policies. The source should share most features with the target, but need not have an identical claims environment.
+
+**When NOT to use:** The source and target books are genuinely unrelated (different peril, different geography, no shared risk factors). The `NegativeTransferDiagnostic` will flag this, but the honest answer is: start with the TabPFN wrapper instead.
+
 ## References
 
 - Tian, Y. and Feng, Y. (2023). Transfer Learning under High-Dimensional Generalized Linear Models. *JASA*, 118(544), 2684–2697.

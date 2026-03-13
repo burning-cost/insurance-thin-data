@@ -41,19 +41,37 @@ THIN_SEGMENT_RECOMMENDED_MAX = 5_000
 THIN_SEGMENT_MINIMUM = 20
 
 
+def _is_non_numeric_dtype(dtype) -> bool:
+    """Return True if dtype is a non-numeric type (object, category, string, etc.).
+
+    Handles pandas object dtype, category dtype, and PyArrow-backed string dtypes
+    (e.g. string[pyarrow]) which appear in Databricks environments.
+    """
+    # Standard object or category
+    if dtype == object or str(dtype) == "category":
+        return True
+    # pd.api.types catches string[python], string[pyarrow], and ArrowDtype strings
+    if not pd.api.types.is_numeric_dtype(dtype):
+        return True
+    return False
+
+
 def _df_to_float_array(X: pd.DataFrame) -> NDArray:
     """
     Convert a DataFrame to float64 array.
 
-    Object / category columns are substituted with 0.0 placeholder — they
+    Object / category / string columns are substituted with 0.0 placeholder — they
     will be label-encoded later in model._encode_categoricals(). Numeric
     columns are converted normally so NaN/Inf checks work correctly.
+
+    Handles PyArrow-backed string dtypes (string[pyarrow]) which are the default
+    in Databricks runtime environments.
     """
     n, p = X.shape
     out = np.zeros((n, p), dtype=np.float64)
     for i, col in enumerate(X.columns):
         dtype = X.dtypes.iloc[i]
-        if dtype == object or str(dtype) == "category":
+        if _is_non_numeric_dtype(dtype):
             # placeholder — will be encoded in model layer
             out[:, i] = 0.0
         else:
@@ -109,10 +127,10 @@ def validate_inputs(
         )
 
     # NaN / Inf checks on numeric columns only
-    # (object placeholder cols are 0.0, always finite)
+    # (non-numeric placeholder cols are 0.0, always finite)
     if isinstance(X, pd.DataFrame):
         numeric_mask = np.array([
-            X.dtypes.iloc[i] != object and str(X.dtypes.iloc[i]) != "category"
+            not _is_non_numeric_dtype(X.dtypes.iloc[i])
             for i in range(X.shape[1])
         ])
         X_numeric = X_arr[:, numeric_mask]

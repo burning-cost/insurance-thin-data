@@ -30,7 +30,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 from insurance_thin_data.tabpfn.backends import BackendProtocol, get_backend
-from insurance_thin_data.tabpfn.validators import validate_inputs, validate_feature_names, _df_to_float_array
+from insurance_thin_data.tabpfn.validators import validate_inputs, validate_feature_names, _df_to_float_array, _is_non_numeric_dtype
 
 
 class InsuranceTabPFN(BaseEstimator, RegressorMixin):
@@ -315,7 +315,7 @@ class InsuranceTabPFN(BaseEstimator, RegressorMixin):
 
         X_out = X_arr.copy()
         for i, (col, dtype) in enumerate(X_orig.dtypes.items()):
-            if dtype == object or str(dtype) == "category":
+            if _is_non_numeric_dtype(dtype):
                 if fit:
                     le = LabelEncoder()
                     X_out[:, i] = le.fit_transform(

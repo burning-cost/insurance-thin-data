@@ -2,6 +2,8 @@
 
 Pricing tools for the data-poor end of the book: foundation models and transfer learning for thin insurance segments.
 
+Merged from: `insurance-tabpfn` (foundation model wrapper) and `insurance-transfer` (transfer learning).
+
 UK pricing teams regularly face the same problem. A new scheme, a niche segment, or an adverse development that's left you with 200 policies and no credible GLM. Standard approaches break down. This library gives you two practical tools:
 
 1. **TabPFN/TabICLv2 wrapper** — foundation models that work on small datasets, with the insurance workflow built in: exposure handling, conformal prediction intervals, PDP relativities, and committee paper generation.

@@ -116,9 +116,12 @@ class RelativitiesExtractor:
         else:
             exp_sample = np.ones(n_bg)
 
-        # Build grid for this feature
+        # Build grid for this feature.
+        # Use pd.api.types to handle all non-numeric dtypes robustly —
+        # object, StringDtype (pandas 2.0+), CategoricalDtype all count as
+        # categorical for relativity purposes.
         col = X_bg.iloc[:, feat_idx]
-        if col.dtype == object or str(col.dtype) == "category":
+        if not pd.api.types.is_numeric_dtype(col):
             grid_values = list(col.unique())
             is_categorical = True
         else:

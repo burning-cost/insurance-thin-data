@@ -135,10 +135,13 @@ class RelativitiesExtractor:
             is_categorical = False
 
         # For each grid value, substitute into background data and predict
+        # Use dict-based assignment to avoid pandas 2.x CoW issues with iloc on
+        # object/string columns. pd.DataFrame.assign creates a new DataFrame
+        # without mutating the background sample.
         mean_preds = []
+        col_name = X_sample.columns[feat_idx]
         for val in grid_values:
-            X_temp = X_sample.copy()
-            X_temp.iloc[:, feat_idx] = val
+            X_temp = X_sample.assign(**{col_name: val})
 
             # No exposure at prediction time — we want rates, not counts
             # Multiply by mean background exposure for correct units

@@ -1,5 +1,10 @@
 # insurance-thin-data
 
+[![PyPI](https://img.shields.io/pypi/v/insurance-thin-data)](https://pypi.org/project/insurance-thin-data/)
+[![Python](https://img.shields.io/pypi/pyversions/insurance-thin-data)](https://pypi.org/project/insurance-thin-data/)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![License](https://img.shields.io/badge/license-BSD--3-blue)]()
+
 Pricing tools for the data-poor end of the book: foundation models and transfer learning for thin insurance segments.
 
 Merged from: `insurance-tabpfn` (foundation model wrapper) and `insurance-transfer` (transfer learning).
@@ -99,4 +104,3 @@ A ready-to-run Databricks notebook benchmarking this library against standard ap
 | [bayesian-pricing](https://github.com/burning-cost/bayesian-pricing) | Hierarchical Bayesian models — partial pooling across segments when transfer from a related source is not available |
 | [insurance-credibility](https://github.com/burning-cost/insurance-credibility) | Bühlmann-Straub credibility — closed-form shrinkage for thin cells where full Bayesian inference is not needed |
 | [insurance-covariate-shift](https://github.com/burning-cost/insurance-covariate-shift) | Covariate shift correction — adapts source-domain models when the target portfolio differs in feature distribution |
-

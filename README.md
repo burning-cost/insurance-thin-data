@@ -80,6 +80,11 @@ The headline result is parameter stability, not point accuracy. On 500 policies 
 
 **When NOT to use:** The source and target books are genuinely unrelated (different peril, different geography, no shared risk factors). The `NegativeTransferDiagnostic` will flag this, but the honest answer is: start with the TabPFN wrapper instead.
 
+
+## Databricks Notebook
+
+A ready-to-run Databricks notebook benchmarking this library against standard approaches is available in [burning-cost-examples](https://github.com/burning-cost/burning-cost-examples/blob/main/notebooks/insurance_thin_data_demo.py).
+
 ## References
 
 - Tian, Y. and Feng, Y. (2023). Transfer Learning under High-Dimensional Generalized Linear Models. *JASA*, 118(544), 2684–2697.

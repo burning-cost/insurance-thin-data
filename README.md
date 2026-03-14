@@ -86,3 +86,12 @@ The headline result is parameter stability, not point accuracy. On 500 policies 
 - Loke, S.-H. and Bauer, D. (2025). Transfer Learning in the Actuarial Domain. *NAAJ*. DOI: 10.1080/10920277.2025.2489637.
 - Schelldorfer, J. and Wuthrich, M. (2019). Nesting Classical Actuarial Models into Neural Networks.
 - Hollmann, N. et al. (2025). TabPFN v2. *Nature*, 637, 319–326.
+
+## Related Libraries
+
+| Library | What it does |
+|---------|-------------|
+| [bayesian-pricing](https://github.com/burning-cost/bayesian-pricing) | Hierarchical Bayesian models — partial pooling across segments when transfer from a related source is not available |
+| [insurance-credibility](https://github.com/burning-cost/insurance-credibility) | Bühlmann-Straub credibility — closed-form shrinkage for thin cells where full Bayesian inference is not needed |
+| [insurance-covariate-shift](https://github.com/burning-cost/insurance-covariate-shift) | Covariate shift correction — adapts source-domain models when the target portfolio differs in feature distribution |
+

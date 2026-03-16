@@ -29,6 +29,9 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+
+    "Intended Audience :: Science/Research",
+    "Topic :: Office/Business :: Financial",
 ]
 dependencies = [
     "numpy>=1.24",

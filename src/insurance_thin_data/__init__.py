@@ -49,12 +49,13 @@ from insurance_thin_data.transfer import (
     ShiftTestResult,
     GLMTransfer,
     GBMTransfer,
+    CANNTransfer,
     NegativeTransferDiagnostic,
     TransferDiagnosticResult,
     TransferPipeline,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 
 __all__ = [
     # tabpfn
@@ -69,6 +70,7 @@ __all__ = [
     "ShiftTestResult",
     "GLMTransfer",
     "GBMTransfer",
+    "CANNTransfer",
     "NegativeTransferDiagnostic",
     "TransferDiagnosticResult",
     "TransferPipeline",

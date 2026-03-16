@@ -10,3 +10,4 @@ build/
 .env
 uv.lock
 
+run_tests.py

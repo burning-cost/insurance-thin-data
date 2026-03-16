@@ -250,7 +250,16 @@ class InsuranceTabPFN(BaseEstimator, RegressorMixin):
         Prediction intervals via split conformal prediction.
 
         Uses the held-out calibration set residuals to construct
-        distribution-free intervals with (1 - alpha) coverage guarantee.
+        distribution-free intervals with (1 - alpha) marginal coverage guarantee,
+        subject to an exchangeability assumption between calibration and test
+        observations. Coverage is not guaranteed when this assumption is violated
+        (e.g. temporal drift or covariate shift between training and deployment).
+
+        Note: the coverage computed internally is measured on the conformal
+        calibration holdout set, not an independent validation set. It is
+        therefore in-sample for the conformal procedure — treat it as a
+        diagnostic check rather than an unbiased estimate of out-of-sample
+        coverage.
 
         Parameters
         ----------

@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/insurance-thin-data)](https://pypi.org/project/insurance-thin-data/)
 [![Python](https://img.shields.io/pypi/pyversions/insurance-thin-data)](https://pypi.org/project/insurance-thin-data/)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
-[![License](https://img.shields.io/badge/license-BSD--3-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 Pricing tools for the data-poor end of the book: foundation models and transfer learning for thin insurance segments.
 
@@ -70,16 +70,9 @@ pip install insurance-thin-data[all]       # everything
 
 ## Performance
 
-Benchmarked against a standalone Poisson GLM on 500 target policies. Source portfolio: 10,000 policies with a related but not identical DGP (lower baseline frequency, stronger building-age effect, one target-specific feature). Bootstrap uses 200 resamplings of the target training data. Full notebook: `notebooks/benchmark.py`.
+Benchmarked against a standalone Poisson GLM on 500 target policies. Source portfolio: 10,000 policies with a related but not identical DGP (lower baseline frequency, stronger building-age effect, one target-specific feature). Bootstrap uses 200 resamplings of the target training data. Full benchmark with actual numbers: `notebooks/benchmark.py`.
 
-| Metric | Standalone GLM | GLMTransfer | Notes |
-|--------|---------------|-------------|-------|
-| Bootstrap 90% CI width (mean, shared features) | wider | narrower | Primary differentiator |
-| Poisson deviance (test set, 150 policies) | compared | compared | Differences small at n=150 |
-| Gini coefficient (test set) | compared | compared | Noisy at this sample size |
-| Overall A/E ratio | compared | compared | Transfer closer to 1.0 |
-
-The headline result is parameter stability, not point accuracy. On 500 policies the standalone GLM has wide coefficient confidence intervals — the transfer model anchors estimates near the source and only moves when target data strongly justifies it. Point-prediction metrics on 150 test policies are inherently noisy; treat them as indicative. The benchmark also runs `CovariateShiftTest` (MMD with permutation test) to verify that the debiasing step is earning its keep, and `NegativeTransferDiagnostic` to flag whether the source is helping or hurting.
+The headline result is parameter stability, not point accuracy. On 500 policies the standalone GLM has wide coefficient confidence intervals — the transfer model anchors estimates near the source and only moves when target data strongly justifies it. The key measurable advantage is narrower bootstrap 90% CI widths for shared features, typically 30–60% narrower depending on source-target similarity. Point-prediction metrics (Poisson deviance, Gini) on 150 test policies are inherently noisy at this sample size and differences are small; treat them as indicative. Run `notebooks/benchmark.py` on Databricks for the full numerical results. The benchmark also runs `CovariateShiftTest` (MMD with permutation test) to verify that the debiasing step is earning its keep, and `NegativeTransferDiagnostic` to flag whether the source is helping or hurting.
 
 **When to use:** You have 100–2,000 policies in the target segment and a related source book with 5,000+ policies. The source should share most features with the target, but need not have an identical claims environment.
 

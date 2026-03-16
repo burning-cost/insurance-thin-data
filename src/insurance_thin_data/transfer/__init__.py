@@ -18,6 +18,7 @@ from insurance_thin_data.transfer.glm_transfer import GLMTransfer
 from insurance_thin_data.transfer.gbm_transfer import GBMTransfer
 from insurance_thin_data.transfer.diagnostic import NegativeTransferDiagnostic, TransferDiagnosticResult
 from insurance_thin_data.transfer.pipeline import TransferPipeline
+from insurance_thin_data.transfer.cann_transfer import CANNTransfer
 
 __all__ = [
     "CovariateShiftTest",
@@ -27,4 +28,5 @@ __all__ = [
     "NegativeTransferDiagnostic",
     "TransferDiagnosticResult",
     "TransferPipeline",
+    "CANNTransfer",
 ]

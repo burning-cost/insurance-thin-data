@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import numpy as np
@@ -256,7 +256,7 @@ class CommitteeReport:
         template = Template(_HTML_TEMPLATE)
         return template.render(
             title=self.config.title,
-            generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             model_version=self.config.model_version,
             model_card=model_card,
             limitations=limitations,
@@ -273,7 +273,7 @@ class CommitteeReport:
 
         payload: dict = {
             "title": self.config.title,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "model_card": model_card,
             "limitations": self.MANDATORY_LIMITATIONS if self.config.include_limitations else [],
         }

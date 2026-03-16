@@ -338,7 +338,12 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
             else:
                 sources_exp = [np.asarray(es, dtype=np.float64) for es in exposure_source]
 
-        # Fit scaler on target (we scale consistently across source/target)
+        # Fit scaler on target data only, then apply to source.
+        # Rationale: the debiasing step estimates delta = beta_target - beta_pooled
+        # on the target scale. If we scaled to source statistics, the delta estimates
+        # would be in the source feature space and would not correctly represent the
+        # target adjustment. Using target-scale normalisation ensures that the pooled
+        # and debiased coefficients are both interpretable in the target context.
         if self.scale_features:
             self.scaler_ = StandardScaler()
             X_scaled = self.scaler_.fit_transform(X)
@@ -449,10 +454,6 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
             nll_fn, grad_fn = _NLL_FNS[self.family]
 
             def obj(delta: NDArray) -> float:
-                return nll_fn(delta, X_aug, y, offset - log_exp + log_exp, self.lambda_debias)
-                # Simplified: the offset replaces log_exposure in the original problem
-
-            def obj(delta: NDArray) -> float:  # type: ignore[no-redef]
                 eta = X_aug @ delta + offset
                 if self.family == "poisson":
                     mu = np.exp(np.clip(eta, -30, 30))
@@ -462,7 +463,7 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
                     nll = np.mean(y / mu + np.log(mu))
                 return float(nll + self.lambda_debias * np.sum(np.abs(delta)))
 
-            def grad(delta: NDArray) -> NDArray:  # type: ignore[no-redef]
+            def grad(delta: NDArray) -> NDArray:
                 eta = X_aug @ delta + offset
                 if self.family == "poisson":
                     mu = np.exp(np.clip(eta, -30, 30))

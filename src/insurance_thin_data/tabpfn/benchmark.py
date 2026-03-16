@@ -100,14 +100,11 @@ def _gini(y_actual: NDArray, y_predicted: NDArray, exposure: Optional[NDArray] =
     # Area under Lorenz curve via trapezoid rule
     _trapezoid = getattr(np, "trapezoid", np.trapz) if hasattr(np, "trapz") else np.trapezoid
     lorenz_area = float(_trapezoid(cum_claims, cum_exposure))
-    # Perfect model area = 0.5; gini = 2 * (lorenz_area - 0.5) ... wait
-    # Standard: Gini = 2 * (AUC - 0.5) if AUC is ROC; for Lorenz it's different
-    # For Lorenz: Gini = 1 - 2 * lorenz_area would give concentration, but
-    # for predictive Gini we want: area between Lorenz and line of equality
-    # Normalised Gini = (0.5 - lorenz_area) / 0.5 * 2 = (lorenz_area - 0.5) * 2
-    # (if sorted by predicted, well-calibrated model => lorenz_area > 0.5)
-    # Lorenz area < 0.5 for good model (low-risk policies first accumulate fewer claims)
-    # Normalised Gini = 1 - 2 * lorenz_area
+    # Sort exposure by ascending predicted risk; low-risk policies first.
+    # A perfectly discriminating model concentrates claims into the last policies,
+    # so the Lorenz curve (cum_claims vs cum_exposure) lies below the diagonal.
+    # The diagonal has area 0.5; a perfect model has lorenz_area -> 0.
+    # Normalised Gini = 1 - 2 * lorenz_area  (range [0, 1], higher is better)
     return float(1.0 - 2.0 * lorenz_area)
 
 
@@ -248,7 +245,7 @@ class GLMBenchmark:
         except ImportError as e:
             raise ImportError(
                 "statsmodels is required for GLMBenchmark. "
-                "Run: pip install insurance-tabpfn[glm]"
+                "Install with: pip install statsmodels"
             ) from e
 
         y_arr = np.asarray(y, dtype=np.float64)

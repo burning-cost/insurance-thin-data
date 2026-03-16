@@ -77,7 +77,7 @@ class TabPFNBackend:
             from tabpfn import TabPFNRegressor  # type: ignore[import-untyped]
         except ImportError as e:
             raise BackendNotAvailableError(
-                "TabPFN is not installed. Run: pip install insurance-tabpfn[tabpfn]"
+                "TabPFN is not installed. Run: pip install insurance-thin-data[tabpfn]"
             ) from e
 
         # V2.5 weights are non-commercial — warn loudly if user requests them
@@ -162,7 +162,7 @@ class TabICLBackend:
             from tabicl import TabICLRegressor  # type: ignore[import-untyped]
         except ImportError as e:
             raise BackendNotAvailableError(
-                "TabICL is not installed. Run: pip install insurance-tabpfn[tabicl]"
+                "TabICL is not installed. Run: pip install insurance-thin-data[tabicl]"
             ) from e
 
         from tabicl import TabICLRegressor  # noqa: F811
@@ -284,8 +284,8 @@ def get_backend(backend: str = "auto", **kwargs) -> BackendProtocol:
 
         raise BackendNotAvailableError(
             "No backend available. Install one of:\n"
-            "  pip install insurance-tabpfn[tabicl]   # TabICLv2 (preferred)\n"
-            "  pip install insurance-tabpfn[tabpfn]   # TabPFN v2\n"
+            "  pip install insurance-thin-data[tabicl]   # TabICLv2 (preferred)\n"
+            "  pip install insurance-thin-data[tabpfn]   # TabPFN v2\n"
             "\n"
             "For testing without ML backends: use backend='mock'."
         )

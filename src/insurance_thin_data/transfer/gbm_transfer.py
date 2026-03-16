@@ -118,7 +118,7 @@ class GBMTransfer(BaseEstimator, RegressorMixin):
         except ImportError as exc:
             raise ImportError(
                 "GBMTransfer requires catboost. Install it with: "
-                "pip install insurance-transfer[catboost]"
+                "pip install insurance-thin-data[catboost]"
             ) from exc
 
     def fit(

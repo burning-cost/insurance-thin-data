@@ -40,7 +40,7 @@ def _check_torch():
     except ImportError as exc:
         raise ImportError(
             "CANNTransfer requires PyTorch. Install it with: "
-            "pip install insurance-transfer[torch]"
+            "pip install insurance-thin-data[torch]"
         ) from exc
 
 

@@ -50,7 +50,9 @@ class TransferDiagnosticResult:
     ntg_relative:
         NTG as a percentage of target-only deviance.
     transfer_is_beneficial:
-        True if NTG < 0 (transfer helped).
+        True if NTG < 0 (transfer helped). With small target samples
+        this flag is unreliable — the deviance difference may be within
+        noise. Treat as indicative only when n_test < 100.
     per_feature_analysis:
         Dict mapping feature index to mean squared residual for the transfer
         model. High values indicate features where transfer causes errors.

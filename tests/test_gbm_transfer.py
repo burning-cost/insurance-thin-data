@@ -166,3 +166,73 @@ class TestGBMTransferFit:
         model.fit(X_tgt, y_tgt)
         preds = model.predict(X_tgt)
         assert np.all(preds > 0)
+
+
+# ---------------------------------------------------------------------------
+# Regression test for P0-3: init_model mode exposure handling
+# ---------------------------------------------------------------------------
+
+class TestInitModelExposureRegression:
+    """Regression tests for the init_model exposure bug (P0-3).
+
+    Before the fix, init_model mode trained CatBoost without passing the
+    combined offset (source log-predictions + log(exposure)) as the pool
+    baseline. Predictions then applied `raw * exposure`, which was doubly
+    wrong: no exposure adjustment at train time and a naive multiplicative
+    correction at predict time.
+    """
+
+    def test_init_model_exposure_scaling(self):
+        """Doubling exposure should roughly double predictions in init_model mode."""
+        from insurance_thin_data.transfer.gbm_transfer import GBMTransfer
+        rng = np.random.default_rng(50)
+        source, _, _ = _make_source_model(rng)
+
+        X_tgt = rng.standard_normal((80, 4))
+        y_tgt = rng.poisson(1.0, size=80).astype(float)
+
+        model = GBMTransfer(
+            source_model=source,
+            mode="init_model",
+            loss_function="Poisson",
+            catboost_params={"iterations": 20, "verbose": 0},
+        )
+        model.fit(X_tgt, y_tgt, exposure=np.ones(80))
+
+        exp1 = np.ones(40)
+        exp2 = np.ones(40) * 2.0
+        X_sub = X_tgt[:40]
+
+        preds1 = model.predict(X_sub, exposure=exp1)
+        preds2 = model.predict(X_sub, exposure=exp2)
+
+        # With Poisson log-link and log(exposure) offset, doubling exposure
+        # should approximately double the predicted counts.
+        ratios = preds2 / preds1
+        assert np.all(ratios > 1.2), f"Ratios not > 1.2 with doubled exposure: {ratios[:5]}"
+        assert np.all(preds1 > 0), "Predictions must be positive"
+        assert np.all(preds2 > 0), "Predictions must be positive"
+
+    def test_init_model_unit_exposure_consistent(self):
+        """Predict with unit exposure vs no exposure should agree in init_model mode."""
+        from insurance_thin_data.transfer.gbm_transfer import GBMTransfer
+        rng = np.random.default_rng(51)
+        source, _, _ = _make_source_model(rng)
+
+        X_tgt = rng.standard_normal((50, 4))
+        y_tgt = rng.poisson(1.0, size=50).astype(float)
+
+        model = GBMTransfer(
+            source_model=source,
+            mode="init_model",
+            loss_function="Poisson",
+            catboost_params={"iterations": 15, "verbose": 0},
+        )
+        model.fit(X_tgt, y_tgt)  # default unit exposure
+
+        preds_default = model.predict(X_tgt)
+        preds_unit = model.predict(X_tgt, exposure=np.ones(50))
+        np.testing.assert_allclose(
+            preds_default, preds_unit, rtol=1e-8,
+            err_msg="Unit exposure predict should match no-exposure predict"
+        )

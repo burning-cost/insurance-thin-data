@@ -195,3 +195,58 @@ def test_glm_benchmark_compare():
     # winner() should return a valid model name
     winner = result.winner()
     assert winner in ("InsuranceTabPFN", "Poisson GLM")
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for P0-4: Poisson deviance zero-count handling
+# ---------------------------------------------------------------------------
+
+class TestPoissonDevianceRegression:
+    """Regression tests for the Poisson deviance zero-observation bug (P0-4).
+
+    Before the fix, the deviance mixed y_actual (unclipped) in the linear term
+    with y=clip(y_actual, eps) in the log term. For zero-count observations
+    this caused:
+        deviance_i = 2 * (eps * log(eps / yhat) - (0 - yhat))
+    instead of the correct:
+        deviance_i = 2 * (0 - (0 - yhat)) = 2 * yhat
+    """
+
+    def test_zero_actual_gives_correct_deviance(self):
+        """Poisson deviance with y=0 should equal 2*yhat (log term vanishes)."""
+        y_actual = np.array([0.0, 0.0, 0.0])
+        y_predicted = np.array([0.5, 1.0, 2.0])
+        d = _poisson_deviance(y_actual, y_predicted)
+        # D = mean(2 * (0 - (0 - yhat))) = mean(2 * yhat)
+        expected = float(np.mean(2.0 * y_predicted))
+        assert abs(d - expected) < 1e-8, f"Zero-actual deviance: got {d}, expected {expected}"
+
+    def test_deviance_consistent_nonneg_actuals(self):
+        """Mixed zeros and positives should be consistent with per-element calculation."""
+        rng = np.random.default_rng(200)
+        n = 200
+        y_actual = rng.poisson(0.3, size=n).astype(float)  # many zeros
+        y_predicted = rng.uniform(0.1, 0.8, size=n)
+
+        d = _poisson_deviance(y_actual, y_predicted)
+
+        # Manually compute the correct formula
+        yhat = np.maximum(y_predicted, 1e-10)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log_term = np.where(y_actual > 0, y_actual * np.log(y_actual / yhat), 0.0)
+        expected = float(np.mean(2.0 * (log_term - (y_actual - yhat))))
+
+        assert abs(d - expected) < 1e-10, (
+            f"Deviance mismatch: got {d}, expected {expected}"
+        )
+
+    def test_perfect_predictions_zero_deviance(self):
+        """With zero actual counts, perfect prediction (yhat=0+eps) gives near-zero deviance."""
+        # The old code would give a non-zero deviance even when yhat matches y_actual
+        # for zero counts because the linear term used unclipped y_actual=0 while
+        # the log term used clipped y=eps.
+        y_actual = np.array([0.0, 1.0, 2.0, 0.0])
+        y_predicted = np.array([1e-9, 1.0, 2.0, 1e-9])  # near-perfect
+        d = _poisson_deviance(y_actual, y_predicted)
+        # Should be very close to zero for near-perfect predictions
+        assert d < 1e-5, f"Near-perfect deviance too large: {d}"

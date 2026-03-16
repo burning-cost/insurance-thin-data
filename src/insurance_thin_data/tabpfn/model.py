@@ -279,7 +279,10 @@ class InsuranceTabPFN(BaseEstimator, RegressorMixin):
         n_cal = len(self._conformal_residuals)
         q_level = np.ceil((n_cal + 1) * (1 - alpha)) / n_cal
         q_level = min(q_level, 1.0)
-        q_hat = float(np.quantile(self._conformal_residuals, q_level))
+        # Split-conformal coverage requires the exact ceil((n+1)(1-alpha))-th
+        # order statistic, not a linearly-interpolated value. 'higher' gives
+        # the smallest order statistic >= q_level, matching the theory.
+        q_hat = float(np.quantile(self._conformal_residuals, q_level, method='higher'))
 
         lower = np.clip(point - q_hat, 0, None)
         upper = point + q_hat

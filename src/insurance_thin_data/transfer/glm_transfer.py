@@ -157,11 +157,11 @@ def _fit_penalised_glm(
         beta_pos = theta[:p]
         beta_neg = theta[p:]
         beta = beta_pos - beta_neg
+        # grad_fn returns g_nll + l1_lambda * sign(beta).
+        # Chain rule: d/d(beta_pos) = +g, d/d(beta_neg) = -g.
+        # This is correct: |beta_i| = (theta_pos_i - theta_neg_i) when beta_i > 0,
+        # so d/d(theta_neg_i) l1 * |beta_i| = -l1_lambda = the neg-part of sign(beta)*l1.
         g = grad_fn(beta, X, y, log_exposure, l1_lambda)
-        # Gradient wrt beta_pos = g; wrt beta_neg = -g; but penalty already in grad
-        # Recompute without penalty for clean split
-        nll_only_pos, nll_only_neg = theta[:p] * 0, theta[p:] * 0
-        # Actually: d/d(beta_pos) obj = grad_beta * 1 = g, d/d(beta_neg) = g * (-1)
         return np.concatenate([g, -g])
 
     # Initialise
@@ -481,6 +481,8 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
 
         def aug_grad(theta: NDArray) -> NDArray:
             d = theta[:p] - theta[p:]
+            # grad(d) returns g_nll + lambda_debias * sign(d).
+            # Chain rule: d/d(d_pos) = +g, d/d(d_neg) = -g.
             g = grad(d)
             return np.concatenate([g, -g])
 

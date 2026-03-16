@@ -191,7 +191,11 @@ class GBMTransfer(BaseEstimator, RegressorMixin):
             model.fit(train_pool)
 
         elif self.mode == "init_model":
-            # Warm-start: continue training from source model
+            # Warm-start: continue training from source model.
+            # Pass the combined offset (source log-predictions + log(exposure)) as
+            # the pool baseline so the model trains on the residual signal, not raw
+            # counts. Without this, exposure is silently ignored during training.
+            pool_kwargs["baseline"] = combined_offset
             train_pool = cb.Pool(**pool_kwargs)
             model = cb.CatBoostRegressor(**params)
             model.fit(train_pool, init_model=self.source_model)
@@ -253,6 +257,18 @@ class GBMTransfer(BaseEstimator, RegressorMixin):
             return raw
 
         else:
-            # init_model mode: direct prediction
-            raw = np.asarray(self.target_model_.predict(X), dtype=np.float64)
-            return raw * exposure
+            # init_model mode: predict using the combined offset (source + exposure),
+            # mirroring how the model was trained. Raw * exposure was wrong because
+            # the model already saw exposure during training via the baseline.
+            source_preds = np.asarray(self.source_model.predict(X), dtype=np.float64)
+            source_preds = np.maximum(source_preds, 1e-10)
+            if self.log_scale_source:
+                source_log = np.log(source_preds)
+            else:
+                source_log = source_preds
+            combined_offset = source_log + log_exp
+
+            cb = self._import_catboost()
+            pool = cb.Pool(data=X, baseline=combined_offset)
+            raw = np.asarray(self.target_model_.predict(pool), dtype=np.float64)
+            return raw

@@ -121,10 +121,18 @@ def _poisson_deviance(
     where y and yhat are claim counts (not rates).
     """
     eps = 1e-10
-    y = np.clip(y_actual, eps, None)
     yhat = np.clip(y_predicted, eps, None)
 
-    deviance_i = 2.0 * (y * np.log(y / yhat) - (y_actual - y_predicted))
+    # Correct Poisson deviance: 2 * (y*log(y/yhat) - (y - yhat))
+    # For y=0 the log term is 0 by convention (lim y->0: y*log(y) = 0).
+    # Using y_actual (not clipped) in the linear term is essential — clipping
+    # the log term at eps while using the unclipped value in the linear term
+    # gave a small but systematic bias for zero-count observations.
+    # np.errstate suppresses the divide-by-zero/invalid warnings that np.where
+    # raises when evaluating log(0) in the false-branch before masking.
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_term = np.where(y_actual > 0, y_actual * np.log(y_actual / yhat), 0.0)
+    deviance_i = 2.0 * (log_term - (y_actual - yhat))
 
     if exposure is not None:
         # Weight by exposure

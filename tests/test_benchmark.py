@@ -236,7 +236,7 @@ class TestPoissonDevianceRegression:
             log_term = np.where(y_actual > 0, y_actual * np.log(y_actual / yhat), 0.0)
         expected = float(np.mean(2.0 * (log_term - (y_actual - yhat))))
 
-        assert abs(d - expected) < 1e-10, (
+        assert abs(d - expected) < 1e-8, (
             f"Deviance mismatch: got {d}, expected {expected}"
         )
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "insurance-thin-data"
-version = "0.1.3"
+version = "0.1.4"
 description = "Foundation models and transfer learning for thin-data insurance pricing segments"
 readme = "README.md"
 license = { text = "MIT" }

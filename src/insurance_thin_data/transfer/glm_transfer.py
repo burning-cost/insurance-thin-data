@@ -320,23 +320,32 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
         exposure = np.asarray(exposure, dtype=np.float64)
         log_exp_tgt = np.log(np.maximum(exposure, 1e-10))
 
-        # Normalise source inputs to lists
+        # Normalise source inputs to lists.
+        # Handle pandas DataFrames, numpy arrays, and lists of either.
+        def _coerce(arr, dtype=np.float64):
+            """Convert array-like (including DataFrames) to a numpy array."""
+            if hasattr(arr, 'values'):   # pandas Series / DataFrame
+                return np.asarray(arr.values, dtype=dtype)
+            return np.asarray(arr, dtype=dtype)
+
         if X_source is None:
             sources_X: List[NDArray] = []
             sources_y: List[NDArray] = []
             sources_exp: List[NDArray] = []
-        elif isinstance(X_source, np.ndarray) and X_source.ndim == 2:
-            sources_X = [np.asarray(X_source, dtype=np.float64)]
-            sources_y = [np.asarray(y_source, dtype=np.float64)]
-            exp_src = exposure_source if exposure_source is not None else np.ones(X_source.shape[0])
-            sources_exp = [np.asarray(exp_src, dtype=np.float64)]
-        else:
-            sources_X = [np.asarray(xs, dtype=np.float64) for xs in X_source]
-            sources_y = [np.asarray(ys, dtype=np.float64) for ys in y_source]
+        elif isinstance(X_source, list):
+            # List of source datasets
+            sources_X = [_coerce(xs) for xs in X_source]
+            sources_y = [_coerce(ys) for ys in (y_source or [])]
             if exposure_source is None:
                 sources_exp = [np.ones(xs.shape[0]) for xs in sources_X]
             else:
-                sources_exp = [np.asarray(es, dtype=np.float64) for es in exposure_source]
+                sources_exp = [_coerce(es) for es in exposure_source]
+        else:
+            # Single source: numpy array, DataFrame, or other 2D array-like
+            sources_X = [_coerce(X_source)]
+            sources_y = [_coerce(y_source)]
+            exp_src = exposure_source if exposure_source is not None else np.ones(sources_X[0].shape[0])
+            sources_exp = [_coerce(exp_src)]
 
         # Fit scaler on target data only, then apply to source.
         # Rationale: the debiasing step estimates delta = beta_target - beta_pooled

@@ -226,8 +226,8 @@ class CovariateShiftTest:
         -------
         ShiftTestResult
         """
-        X_source = np.asarray(X_source)
-        X_target = np.asarray(X_target)
+        X_source = np.asarray(X_source.values if hasattr(X_source, "values") else X_source)
+        X_target = np.asarray(X_target.values if hasattr(X_target, "values") else X_target)
 
         if X_source.ndim == 1:
             X_source = X_source.reshape(-1, 1)

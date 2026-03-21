@@ -9,6 +9,8 @@ Pricing tools for the data-poor end of the book: foundation models and transfer 
 
 Merged from: `insurance-tabpfn` (foundation model wrapper) and `insurance-transfer` (transfer learning).
 
+**Blog post:** [When You Can't Fit a GLM from Scratch: Transfer Learning for Thin Segments](https://burning-cost.github.io/2027/07/15/transfer-learning-for-thin-segments/)
+
 UK pricing teams regularly face the same problem. A new scheme, a niche segment, or an adverse development that's left you with 200 policies and no credible GLM. Standard approaches break down. This library gives you two practical tools:
 
 1. **TabPFN/TabICLv2 wrapper** — foundation models that work on small datasets, with the insurance workflow built in: exposure handling, conformal prediction intervals, PDP relativities, and committee paper generation.
@@ -67,6 +69,8 @@ pip install insurance-thin-data[torch]     # CANN transfer
 pip install insurance-thin-data[report]    # HTML committee reports
 pip install insurance-thin-data[all]       # everything
 ```
+
+> 💬 Questions or feedback? Start a [Discussion](https://github.com/burning-cost/insurance-thin-data/discussions). Found it useful? A ⭐ helps others find it.
 
 ## Performance
 

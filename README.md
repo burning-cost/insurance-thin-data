@@ -57,17 +57,17 @@ print(result)  # shift p-value, NTG, whether transfer helped
 ## Installation
 
 ```bash
-pip install insurance-thin-data
+uv add insurance-thin-data
 ```
 
 Optional backends:
 ```bash
-pip install insurance-thin-data[tabicl]    # TabICLv2 (preferred)
-pip install insurance-thin-data[tabpfn]    # TabPFN v2
-pip install insurance-thin-data[catboost]  # GBM transfer
-pip install insurance-thin-data[torch]     # CANN transfer
-pip install insurance-thin-data[report]    # HTML committee reports
-pip install insurance-thin-data[all]       # everything
+uv add "insurance-thin-data[tabicl]"    # TabICLv2 (preferred)
+uv add "insurance-thin-data[tabpfn]"    # TabPFN v2
+uv add "insurance-thin-data[catboost]"  # GBM transfer
+uv add "insurance-thin-data[torch]"     # CANN transfer
+uv add "insurance-thin-data[report]"    # HTML committee reports
+uv add "insurance-thin-data[all]"       # everything
 ```
 
 > 💬 Questions or feedback? Start a [Discussion](https://github.com/burning-cost/insurance-thin-data/discussions). Found it useful? A ⭐ helps others find it.

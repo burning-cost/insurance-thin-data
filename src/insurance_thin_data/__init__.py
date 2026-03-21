@@ -55,7 +55,7 @@ from insurance_thin_data.transfer import (
     TransferPipeline,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.4"
 
 __all__ = [
     # tabpfn

@@ -96,8 +96,9 @@ A ready-to-run Databricks notebook benchmarking this library against standard ap
 
 ## Related Libraries
 
-| Library | What it does |
+| Library | Description |
 |---------|-------------|
-| [bayesian-pricing](https://github.com/burning-cost/bayesian-pricing) | Hierarchical Bayesian models — partial pooling across segments when transfer from a related source is not available |
+| [insurance-multilevel](https://github.com/burning-cost/insurance-multilevel) | Multilevel random effects models — partial pooling across segments when transfer from a related source is not available |
 | [insurance-credibility](https://github.com/burning-cost/insurance-credibility) | Bühlmann-Straub credibility — closed-form shrinkage for thin cells where full Bayesian inference is not needed |
+| [bayesian-pricing](https://github.com/burning-cost/bayesian-pricing) | Hierarchical Bayesian models — partial pooling across segments for thin-data pricing |
 | [insurance-covariate-shift](https://github.com/burning-cost/insurance-covariate-shift) | Covariate shift correction — adapts source-domain models when the target portfolio differs in feature distribution |

@@ -63,6 +63,8 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/burning-cost/insurance-thin-data"
 Repository = "https://github.com/burning-cost/insurance-thin-data"
+Issues = "https://github.com/burning-cost/insurance-thin-data/issues"
+Documentation = "https://github.com/burning-cost/insurance-thin-data#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/insurance_thin_data"]

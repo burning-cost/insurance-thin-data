@@ -55,7 +55,12 @@ from insurance_thin_data.transfer import (
     TransferPipeline,
 )
 
-__version__ = "0.1.4"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("insurance-thin-data")
+except PackageNotFoundError:
+    __version__ = "0.0.0"  # not installed
 
 __all__ = [
     # tabpfn

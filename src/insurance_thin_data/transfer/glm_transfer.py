@@ -267,6 +267,14 @@ class GLMTransfer(BaseEstimator, RegressorMixin):
         scale_features: bool = True,
         fit_intercept: bool = True,
     ) -> None:
+        if family not in ("poisson", "gamma", "gaussian"):
+            raise ValueError(
+                f"family must be one of 'poisson', 'gamma', 'gaussian'; got {family!r}"
+            )
+        if lambda_pool < 0:
+            raise ValueError(f"lambda_pool must be >= 0; got {lambda_pool}")
+        if lambda_debias < 0:
+            raise ValueError(f"lambda_debias must be >= 0; got {lambda_debias}")
         self.family = family
         self.lambda_pool = lambda_pool
         self.lambda_debias = lambda_debias

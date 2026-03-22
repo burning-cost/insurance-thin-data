@@ -191,20 +191,43 @@ class CovariateShiftTest:
         bandwidth: Optional[float] = None,
         random_state: Optional[int] = None,
     ) -> None:
+        if n_permutations < 1:
+            raise ValueError(f"n_permutations must be >= 1; got {n_permutations}")
         self.categorical_cols = list(categorical_cols) if categorical_cols is not None else []
         self.n_permutations = n_permutations
         self.bandwidth = bandwidth
         self.random_state = random_state
 
-    def _resolve_cols(self, X: NDArray) -> tuple[List[int], List[int]]:
-        """Return (cat_col_indices, cont_col_indices)."""
+    def _resolve_cols(
+        self, X: NDArray, col_names: list | None = None
+    ) -> tuple[List[int], List[int]]:
+        """Return (cat_col_indices, cont_col_indices).
+
+        Parameters
+        ----------
+        X:
+            Feature array (already coerced to numpy).
+        col_names:
+            Original column names, if X came from a DataFrame. Used to
+            resolve string entries in categorical_cols to integer indices.
+        """
         n_cols = X.shape[1]
         if self.categorical_cols and isinstance(self.categorical_cols[0], str):
-            raise ValueError(
-                "categorical_cols must be integer indices when X is a numpy array. "
-                "Convert column names to indices before calling test()."
-            )
-        cat_cols = [int(c) for c in self.categorical_cols]
+            if col_names is None:
+                raise ValueError(
+                    "categorical_cols contains string names but X is a numpy array "
+                    "with no column name information. Pass a DataFrame to test(), "
+                    "or convert categorical_cols to integer indices first."
+                )
+            name_to_idx = {name: i for i, name in enumerate(col_names)}
+            try:
+                cat_cols = [name_to_idx[c] for c in self.categorical_cols]
+            except KeyError as e:
+                raise ValueError(
+                    f"categorical_cols name {e} not found in DataFrame columns."
+                ) from e
+        else:
+            cat_cols = [int(c) for c in self.categorical_cols]
         cont_cols = [i for i in range(n_cols) if i not in set(cat_cols)]
         return cat_cols, cont_cols
 
@@ -226,8 +249,32 @@ class CovariateShiftTest:
         -------
         ShiftTestResult
         """
-        X_source = np.asarray(X_source.values if hasattr(X_source, "values") else X_source)
-        X_target = np.asarray(X_target.values if hasattr(X_target, "values") else X_target)
+        # Capture column names before coercing to numpy so string categorical_cols work.
+        import pandas as _pd
+        _source_col_names = list(X_source.columns) if isinstance(X_source, _pd.DataFrame) else None
+        _target_col_names = list(X_target.columns) if isinstance(X_target, _pd.DataFrame) else None
+
+        try:
+            X_source = np.asarray(
+                X_source.values if hasattr(X_source, "values") else X_source,
+                dtype=float,
+            )
+        except (ValueError, TypeError) as e:
+            raise TypeError(
+                "X_source could not be coerced to float. "
+                "Ensure all columns are numeric before calling test()."
+            ) from e
+
+        try:
+            X_target = np.asarray(
+                X_target.values if hasattr(X_target, "values") else X_target,
+                dtype=float,
+            )
+        except (ValueError, TypeError) as e:
+            raise TypeError(
+                "X_target could not be coerced to float. "
+                "Ensure all columns are numeric before calling test()."
+            ) from e
 
         if X_source.ndim == 1:
             X_source = X_source.reshape(-1, 1)
@@ -239,7 +286,7 @@ class CovariateShiftTest:
                 f"Source has {X_source.shape[1]} columns but target has {X_target.shape[1]}."
             )
 
-        cat_cols, cont_cols = self._resolve_cols(X_source)
+        cat_cols, cont_cols = self._resolve_cols(X_source, col_names=_source_col_names)
         bandwidth = self.bandwidth if self.bandwidth is not None else _estimate_bandwidth(
             X_source, X_target, cont_cols
         )

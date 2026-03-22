@@ -82,6 +82,11 @@ class InsuranceTabPFN(BaseEstimator, RegressorMixin):
         conformal_test_size: float = 0.2,
         random_state: Optional[int] = None,
     ) -> None:
+        _valid_backends = ("auto", "tabicl", "tabpfn", "mock")
+        if backend not in _valid_backends:
+            raise ValueError(
+                f"backend must be one of {_valid_backends}; got {backend!r}"
+            )
         self.backend = backend
         self.device = device
         self.n_estimators = n_estimators

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "insurance-thin-data"
-version = "0.1.5"
+version = "0.1.6"
 description = "Foundation models and transfer learning for thin-data insurance pricing segments"
 readme = "README.md"
 license = "MIT"
@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Office/Business :: Financial",
 ]
 dependencies = [
-    "numpy>=1.24",
+    "numpy>=1.25",
     "pandas>=2.0",
 
     "scikit-learn>=1.3",

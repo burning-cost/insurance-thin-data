@@ -11,3 +11,8 @@ build/
 uv.lock
 
 run_tests.py
+
+.coverage
+htmlcov/
+.pytest_cache/
+catboost_info/
